@@ -10,67 +10,83 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   int _counter = 0;
 
-  final _pageController = PageController();
+  TabController _tabController;
+
+  @override
+  void initState() {
+    _tabController = TabController(vsync: this, length: 8);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        pageSnapping: false,
-        children: [
-          CounterPage(counter: _counter),
-          Page2(),
-          Page3(),
-          Page4(),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          NavigatorButton(
-            text: "1",
-            onPressed: () {
-              _pageController.animateTo(
-                _pageController.position.minScrollExtent,
-                duration: Duration(milliseconds: 400),
-                curve: Curves.easeIn,
-              );
-            },
+    return DefaultTabController(
+      length: 8,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("TabBarExample"),
+          centerTitle: true,
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          physics: NeverScrollableScrollPhysics(),
+          children: [
+            CounterPage(counter: _counter),
+            Page2(),
+            Page3(),
+            Page4(),
+            CounterPage(counter: _counter),
+            Page2(),
+            Page3(),
+            Page4(),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          bottom: true,
+          child: Container(
+            color: Colors.blue,
+            child: Flex(
+              direction: Axis.horizontal,
+              children: [
+                Expanded(
+                  flex: 10,
+                  child: TabBar(
+                      isScrollable: true,
+                      physics: BouncingScrollPhysics(),
+                      indicatorColor: Colors.white,
+                      indicator: UnderlineTabIndicator(
+                        insets: EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 40.0),
+                      ),
+                      controller: _tabController,
+                      onTap: (index) {
+                        setState(() {});
+                      },
+                      tabs: List.generate(
+                        _tabController.length,
+                        (index) => Container(
+                          height: 40.0,
+                          width: 20.0,
+                          decoration: BoxDecoration(
+                            color: _tabController.index == index
+                                ? Colors.green
+                                : Colors.blue,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Tab(
+                            child: Text(index.toString()),
+                          ),
+                        ),
+                      )),
+                ),
+                Flexible(child: Icon(Icons.arrow_forward_ios))
+              ],
+            ),
           ),
-          NavigatorButton(
-            text: "2",
-            onPressed: () {
-              _pageController.animateTo(
-                _pageController.position.minScrollExtent +
-                    (MediaQuery.of(context).size.width),
-                duration: Duration(milliseconds: 400),
-                curve: Curves.easeIn,
-              );
-            },
-          ),
-          NavigatorButton(
-            text: "3",
-            onPressed: () {
-              _pageController.animateTo(
-                _pageController.position.minScrollExtent +
-                    (MediaQuery.of(context).size.width * 2),
-                duration: Duration(milliseconds: 400),
-                curve: Curves.easeIn,
-              );
-            },
-          ),
-          NavigatorButton(
-            text: "4",
-            onPressed: () {
-              _pageController.jumpToPage(4);
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
